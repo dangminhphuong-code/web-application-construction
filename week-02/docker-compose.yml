@@ -1,0 +1,92 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: db_w02
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: "123456"
+      POSTGRES_DB: student_db
+    ports:
+      - "15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d postgres"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+
+  db-init:
+    image: postgres:15-alpine
+    container_name: db_w02_init
+    environment:
+      PGPASSWORD: "123456"
+    command: >
+      sh -c "
+        psql -h db -U admin -d postgres -tc \"SELECT 1 FROM pg_database WHERE datname = 'student_db'\" | grep -q 1 || psql -h db -U admin -d postgres -c \"CREATE DATABASE student_db\";
+        psql -h db -U admin -d postgres -tc \"SELECT 1 FROM pg_database WHERE datname = 'course_db'\" | grep -q 1 || psql -h db -U admin -d postgres -c \"CREATE DATABASE course_db\";
+        psql -h db -U admin -d postgres -tc \"SELECT 1 FROM pg_database WHERE datname = 'enrollment_db'\" | grep -q 1 || psql -h db -U admin -d postgres -c \"CREATE DATABASE enrollment_db\";
+      "
+    depends_on:
+      db:
+        condition: service_healthy
+
+  student-service:
+    build:
+      context: .
+      dockerfile: services/student-service/Dockerfile
+    container_name: student_service
+    env_file:
+      - services/student-service/.env.docker
+    ports:
+      - "50051:50051"
+      - "3001:3001"
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+
+  course-service:
+    build:
+      context: .
+      dockerfile: services/course-service/Dockerfile
+    container_name: course_service
+    env_file:
+      - services/course-service/.env.docker
+    ports:
+      - "50052:50052"
+      - "3002:3002"
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+
+  enrollment-service:
+    build:
+      context: .
+      dockerfile: services/enrollment-service/Dockerfile
+    container_name: enrollment_service
+    env_file:
+      - services/enrollment-service/.env.docker
+    ports:
+      - "50053:50053"
+      - "3003:3003"
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+
+  graphql-server:
+    build:
+      context: .
+      dockerfile: graphql-server/Dockerfile
+    container_name: graphql_gateway
+    env_file:
+      - graphql-server/.env.docker
+    ports:
+      - "4000:4000"
+    depends_on:
+      - student-service
+      - course-service
+      - enrollment-service
+
+volumes:
+  db_data:

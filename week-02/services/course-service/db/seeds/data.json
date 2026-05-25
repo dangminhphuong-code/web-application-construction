@@ -1,0 +1,17 @@
+[
+  {
+    "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "title": "Web Application Construction",
+    "description": "REST, GraphQL, gRPC and modern web application development"
+  },
+  {
+    "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+    "title": "GraphQL Fundamentals",
+    "description": "Schema design, resolvers, authentication and pagination"
+  },
+  {
+    "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    "title": "gRPC Microservices",
+    "description": "Service boundaries, protobuf contracts and gateway integration"
+  }
+]

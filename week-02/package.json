@@ -1,0 +1,36 @@
+{
+  "name": "week1-grpc-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "graphql-server",
+    "services/student-service",
+    "services/course-service",
+    "services/enrollment-service"
+  ],
+  "scripts": {
+    "start:graphql": "npm run start -w graphql-server",
+    "start:student": "npm run start -w services/student-service",
+    "start:course": "npm run start -w services/course-service",
+    "start:enrollment": "npm run start -w services/enrollment-service",
+    "dev:graphql": "npm run dev -w graphql-server",
+    "dev:student": "npm run dev -w services/student-service",
+    "dev:course": "npm run dev -w services/course-service",
+    "dev:enrollment": "npm run dev -w services/enrollment-service",
+    "migrate": "npm run migrate:student && npm run migrate:course && npm run migrate:enrollment",
+    "migrate:student": "npm run migrate -w services/student-service",
+    "migrate:course": "npm run migrate -w services/course-service",
+    "migrate:enrollment": "npm run migrate -w services/enrollment-service",
+    "rollback:student": "npm run rollback -w services/student-service",
+    "rollback:course": "npm run rollback -w services/course-service",
+    "rollback:enrollment": "npm run rollback -w services/enrollment-service",
+    "seed": "npm run seed:student && npm run seed:course && npm run seed:enrollment",
+    "seed:student": "npm run seed -w services/student-service",
+    "seed:course": "npm run seed -w services/course-service",
+    "seed:enrollment": "npm run seed -w services/enrollment-service"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
