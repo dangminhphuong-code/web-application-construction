@@ -1,0 +1,21 @@
+{
+  "students": [
+    {
+      "name": "Nguyễn An",
+      "email": "an@example.com",
+      "password": "student123"
+    }
+  ],
+  "courses": [
+    {
+      "title": "Xây dựng phần mềm Web",
+      "description": "Học REST, GraphQL và phát triển ứng dụng Web"
+    }
+  ],
+  "enrollments": [
+    {
+      "studentEmail": "an@example.com",
+      "courseTitle": "Xây dựng phần mềm Web"
+    }
+  ]
+}
