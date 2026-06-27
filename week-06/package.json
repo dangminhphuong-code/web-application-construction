@@ -1,0 +1,53 @@
+{
+  "name": "week6-microservices-optimization",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "graphql-server",
+    "services/student-service",
+    "services/course-service",
+    "services/enrollment-service",
+    "services/notification-service",
+    "services/chat-service"
+  ],
+  "scripts": {
+    "start": "npm run start:graphql",
+    "dev": "npm run dev:graphql",
+    "start:graphql": "npm run start -w graphql-server",
+    "start:student": "npm run start -w services/student-service",
+    "start:course": "npm run start -w services/course-service",
+    "start:enrollment": "npm run start -w services/enrollment-service",
+    "start:notification": "npm run start -w services/notification-service",
+    "start:chat": "npm run start -w services/chat-service",
+    "dev:graphql": "npm run dev -w graphql-server",
+    "dev:student": "npm run dev -w services/student-service",
+    "dev:course": "npm run dev -w services/course-service",
+    "dev:course:replica1": "node scripts/start-course-replica.js 3002 50052 course-1",
+    "dev:course:replica2": "node scripts/start-course-replica.js 3012 50062 course-2",
+    "dev:course:lb": "concurrently -k -n course-1,course-2 \"npm run dev:course:replica1\" \"npm run dev:course:replica2\"",
+    "dev:enrollment": "npm run dev -w services/enrollment-service",
+    "dev:notification": "npm run dev -w services/notification-service",
+    "dev:chat": "npm run dev -w services/chat-service",
+    "worker:outbox": "npm run worker:outbox -w services/enrollment-service",
+    "worker:course-outbox": "npm run worker:outbox -w services/course-service",
+    "consumer:enrollment": "npm run consumer:enrollment -w services/course-service",
+    "migrate": "npm run migrate:student && npm run migrate:course && npm run migrate:enrollment && npm run migrate:chat",
+    "migrate:student": "npm run migrate -w services/student-service",
+    "migrate:course": "npm run migrate -w services/course-service",
+    "migrate:enrollment": "npm run migrate -w services/enrollment-service",
+    "migrate:chat": "npm run migrate -w services/chat-service",
+    "rollback:student": "npm run rollback -w services/student-service",
+    "rollback:course": "npm run rollback -w services/course-service",
+    "rollback:enrollment": "npm run rollback -w services/enrollment-service",
+    "rollback:chat": "npm run rollback -w services/chat-service",
+    "seed": "npm run seed:student && npm run seed:course && npm run seed:enrollment",
+    "seed:student": "npm run seed -w services/student-service",
+    "seed:course": "npm run seed -w services/course-service",
+    "seed:enrollment": "npm run seed -w services/enrollment-service"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.14"
+  }
+}

@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: w07-secrets
+  namespace: w07
+type: Opaque
+stringData:
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: "123456"
+  DB_USER: admin
+  DB_PASSWORD: "123456"
+  RABBITMQ_DEFAULT_USER: app
+  RABBITMQ_DEFAULT_PASS: app123
+  JWT_SECRET: your_jwt_secret_key
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: w07-config
+  namespace: w07
+data:
+  NODE_ENV: development
+  POSTGRES_DB: student_db
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  PASSWORD_SALT_ROUNDS: "10"
+  REDIS_URL: redis://redis:6379
+  REDIS_CONNECT_TIMEOUT_MS: "500"
+  REDIS_COMMAND_TIMEOUT_MS: "500"
+  COURSE_CACHE_TTL_SECONDS: "60"
+  COURSE_CACHE_PREFIX: course
+  COURSE_TOP_COURSES_KEY: courses:top
+  COURSE_TOP_COURSES_READY_KEY: courses:top:ready
+  RABBITMQ_URL: amqp://app:app123@rabbitmq:5672
+  RABBITMQ_EXCHANGE: enrollment.events
+  RABBITMQ_EXCHANGE_TYPE: topic
+  RABBITMQ_DLX: enrollment.dlx
+  RABBITMQ_PREFETCH: "1"
+  COURSE_ENROLLMENT_QUEUE: course.enrollment.confirmed.queue
+  COURSE_ENROLLMENT_DLQ: course.enrollment.confirmed.dlq
+  COURSE_ENROLLMENT_ROUTING_KEY: enrollment.confirmed
+  COURSE_ENROLLMENT_DLQ_ROUTING_KEY: course.enrollment.confirmed.dead
+  COURSE_EVENT_MAX_RETRIES: "3"
+  COURSE_EVENT_RETRY_DELAY_MS: "3000"
+  COURSE_EVENTS_EXCHANGE: course.events
+  COURSE_EVENTS_EXCHANGE_TYPE: topic
+  COURSE_EVENT_ROUTING_KEY: course.enrolled_count.increased
+  COURSE_OUTBOX_POLL_INTERVAL_MS: "2000"
+  COURSE_OUTBOX_BATCH_SIZE: "20"
+  COURSE_OUTBOX_MAX_ATTEMPTS: "10"
+  OUTBOX_POLL_INTERVAL_MS: "2000"
+  OUTBOX_BATCH_SIZE: "20"
+  OUTBOX_MAX_ATTEMPTS: "10"
+  NOTIFICATION_QUEUE: notification.course.enrolled_count.increased.queue
+  NOTIFICATION_EVENT_DEDUP_TTL_SECONDS: "86400"
+  STUDENT_GRPC_URL: student-service:50051
+  COURSE_GRPC_URL: course-service:50052
+  STUDENT_SERVICE_ADDR: student-service:50051
+  COURSE_SERVICE_ADDR: course-service:50052
+  ENROLLMENT_SERVICE_ADDR: enrollment-service:50053
+  STUDENT_HEALTH_CHECK_PORT: "3001"
+  COURSE_HEALTH_CHECK_PORT: "3002"
+  ENROLLMENT_HEALTH_CHECK_PORT: "3003"
+  GRPC_TIMEOUT_MS: "1500"
+  GRPC_ENROLLMENT_TIMEOUT_MS: "2500"
+  JWT_EXPIRES_IN: 2h
+  CORS_ORIGIN: http://localhost:5173
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb
+  namespace: w07
+data:
+  01-create-databases.sql: |
+    CREATE DATABASE course_db;
+    CREATE DATABASE enrollment_db;
+    CREATE DATABASE chat_db;
