@@ -1,0 +1,111 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: student-migrate
+  namespace: w07
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: wait-postgres
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
+      containers:
+        - name: student-migrate
+          image: w07/student-service:dev
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "npm run migrate && npm run seed"]
+          envFrom:
+            - configMapRef:
+                name: w07-config
+            - secretRef:
+                name: w07-secrets
+          env:
+            - name: DB_NAME
+              value: student_db
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: course-migrate
+  namespace: w07
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: wait-postgres
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
+      containers:
+        - name: course-migrate
+          image: w07/course-service:dev
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "npm run migrate && npm run seed"]
+          envFrom:
+            - configMapRef:
+                name: w07-config
+            - secretRef:
+                name: w07-secrets
+          env:
+            - name: DB_NAME
+              value: course_db
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: enrollment-migrate
+  namespace: w07
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: wait-postgres
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
+      containers:
+        - name: enrollment-migrate
+          image: w07/enrollment-service:dev
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "npm run migrate && npm run seed"]
+          envFrom:
+            - configMapRef:
+                name: w07-config
+            - secretRef:
+                name: w07-secrets
+          env:
+            - name: DB_NAME
+              value: enrollment_db
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: chat-migrate
+  namespace: w07
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: wait-postgres
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
+      containers:
+        - name: chat-migrate
+          image: w07/chat-service:dev
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "npm run migrate"]
+          envFrom:
+            - configMapRef:
+                name: w07-config
+            - secretRef:
+                name: w07-secrets
+          env:
+            - name: DB_NAME
+              value: chat_db

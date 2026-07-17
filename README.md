@@ -10,3 +10,5 @@ Weekly web application construction assignments and practice projects.
 - `week-05`: Realtime microservices with course outbox notifications over SSE and student chat service.
 - `week-06`: Redis caching, Nginx gRPC load balancing, PostgreSQL partitioning, and idempotent consumers.
 - `week-07`: Kubernetes deployment manifests and Jest unit tests for the microservices backend.
+- `week-08`: Next.js frontend for course registration, auth, dashboard, and enrollments.
+- `week-09`: AI Course Advisor with streaming chat, RAG course search, read-only AI tools, and MCP server.

@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enrollment-outbox-worker
+  namespace: w07
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: enrollment-outbox-worker
+  template:
+    metadata:
+      labels:
+        app: enrollment-outbox-worker
+    spec:
+      initContainers:
+        - name: wait-postgres
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
+        - name: wait-rabbitmq
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z rabbitmq 5672; do sleep 2; done"]
+      containers:
+        - name: worker
+          image: w07/enrollment-service:dev
+          imagePullPolicy: IfNotPresent
+          command: ["npm", "run", "worker:outbox"]
+          envFrom:
+            - configMapRef:
+                name: w07-config
+            - secretRef:
+                name: w07-secrets
+          env:
+            - name: DB_NAME
+              value: enrollment_db
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: course-enrollment-consumer
+  namespace: w07
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: course-enrollment-consumer
+  template:
+    metadata:
+      labels:
+        app: course-enrollment-consumer
+    spec:
+      initContainers:
+        - name: wait-postgres
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
+        - name: wait-rabbitmq
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z rabbitmq 5672; do sleep 2; done"]
+        - name: wait-redis
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z redis 6379; do sleep 2; done"]
+      containers:
+        - name: consumer
+          image: w07/course-service:dev
+          imagePullPolicy: IfNotPresent
+          command: ["npm", "run", "consumer:enrollment"]
+          envFrom:
+            - configMapRef:
+                name: w07-config
+            - secretRef:
+                name: w07-secrets
+          env:
+            - name: DB_NAME
+              value: course_db
+            - name: INSTANCE_NAME
+              value: course-enrollment-consumer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: course-outbox-worker
+  namespace: w07
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: course-outbox-worker
+  template:
+    metadata:
+      labels:
+        app: course-outbox-worker
+    spec:
+      initContainers:
+        - name: wait-postgres
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
+        - name: wait-rabbitmq
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z rabbitmq 5672; do sleep 2; done"]
+      containers:
+        - name: worker
+          image: w07/course-service:dev
+          imagePullPolicy: IfNotPresent
+          command: ["npm", "run", "worker:outbox"]
+          envFrom:
+            - configMapRef:
+                name: w07-config
+            - secretRef:
+                name: w07-secrets
+          env:
+            - name: DB_NAME
+              value: course_db
+            - name: INSTANCE_NAME
+              value: course-outbox-worker
